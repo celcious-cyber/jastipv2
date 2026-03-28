@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berhasil! - Jastip Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root { --primary: #e8a0bf; --secondary: #f2d1d1; --cream: #fdfaf6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--cream); font-family: 'Jost', sans-serif; color: #333; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+
+        /* Success Animation */
+        .success-check {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            display: flex; align-items: center; justify-content: center;
+            margin: 30px auto 20px; animation: popBounce 0.6s ease;
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+        }
+        .success-check i { font-size: 3rem; color: white; }
+        @keyframes popBounce { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        .success-title { font-family: 'Playfair Display', serif; color: #28a745; font-size: 1.5rem; text-align: center; margin-bottom: 6px; }
+        .success-subtitle { color: #888; font-size: 0.9rem; text-align: center; margin-bottom: 24px; }
+
+        /* Receipt Card */
+        .receipt-card {
+            width: 100%; max-width: 400px; background: white;
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            position: relative;
+        }
+        .receipt-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px; text-align: center; color: white;
+        }
+        .receipt-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 0 0 4px 0; }
+        .receipt-header p { font-size: 0.75rem; margin: 0; opacity: 0.9; }
+
+        .receipt-body { padding: 20px; }
+        
+        .receipt-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px dashed #eee;
+        }
+        .receipt-row:last-child { border-bottom: none; }
+        .receipt-label { color: #999; font-size: 0.8rem; font-weight: 500; }
+        .receipt-value { font-weight: 700; font-size: 0.95rem; text-align: right; }
+        .receipt-value.price { color: var(--primary); font-size: 1.1rem; }
+
+        .receipt-item-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin-right: 12px; }
+        .receipt-item-placeholder { width: 60px; height: 60px; border-radius: 12px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; margin-right: 12px; }
+
+        .receipt-divider {
+            height: 0; border: none; border-top: 2px dashed #eee;
+            margin: 0 -20px; position: relative;
+        }
+        .receipt-divider::before, .receipt-divider::after {
+            content: ''; width: 20px; height: 20px; background: var(--cream);
+            border-radius: 50%; position: absolute; top: -10px;
+        }
+        .receipt-divider::before { left: -10px; }
+        .receipt-divider::after { right: -10px; }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; margin-top: 8px;
+            background: #fff3cd; color: #856404;
+        }
+
+        /* Instruction Box */
+        .instruction-box {
+            width: 100%; max-width: 400px; margin-top: 20px;
+            background: white; border-radius: 16px; padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .instruction-box h6 { font-weight: 700; font-size: 0.9rem; margin-bottom: 12px; }
+        .step-item { display: flex; gap: 12px; margin-bottom: 14px; }
+        .step-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--primary); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+        }
+        .step-text { font-size: 0.85rem; color: #555; line-height: 1.4; }
+
+        /* Buttons */
+        .btn-back {
+            width: 100%; max-width: 400px; margin-top: 16px;
+            padding: 14px; border-radius: 50px; font-weight: 700;
+            background: var(--primary); color: white; border: none;
+            font-size: 1rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-back:active { filter: brightness(0.9); transform: scale(0.98); }
+        .btn-secondary-custom {
+            width: 100%; max-width: 400px; margin-top: 10px;
+            padding: 12px; border-radius: 50px; font-weight: 600;
+            background: none; color: #999; border: 2px solid #eee;
+            font-size: 0.9rem; cursor: pointer;
+        }
+
+        /* Confetti */
+        .confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+        .confetti-piece {
+            position: absolute; width: 10px; height: 10px;
+            top: -10px; animation: confettiFall 3s ease-in forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Confetti Animation -->
+    <div class="confetti" id="confettiContainer"></div>
+
+    <!-- Success Icon -->
+    <div class="success-check"><i class="bi bi-check-lg"></i></div>
+    <h2 class="success-title">Barang Kamu Sudah Dikunci! 🎉</h2>
+    <p class="success-subtitle">Admin akan menghubungi kamu via WhatsApp</p>
+
+    <!-- Receipt Card -->
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <h3 id="eventName">Live Katalog</h3>
+            <p id="grabTime"></p>
+        </div>
+        <div class="receipt-body">
+            <!-- Item Info -->
+            <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                <div id="itemImageContainer"></div>
+                <div>
+                    <div style="font-weight: 700;" id="itemNameDisplay">-</div>
+                    <div style="font-size: 0.8rem; color: #999;">Qty: 1</div>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-row">
+                <span class="receipt-label">Harga Barang</span>
+                <span class="receipt-value price" id="itemPriceDisplay">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Nama Pemesan</span>
+                <span class="receipt-value" id="customerNameDisplay">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">No. WhatsApp</span>
+                <span class="receipt-value" id="customerPhoneDisplay">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Status</span>
+                <span class="status-badge">⏳ Menunggu Konfirmasi Admin</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="instruction-box">
+        <h6><i class="bi bi-info-circle me-2" style="color: var(--primary);"></i>Langkah Selanjutnya</h6>
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Tunggu pesan dari Admin</strong> melalui WhatsApp dalam beberapa saat.</div>
+        </div>
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">Admin akan mengirimkan <strong>total tagihan & rekening pembayaran</strong>.</div>
+        </div>
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Lakukan <strong>transfer</strong> dan kirim bukti bayar ke Admin.</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <button class="btn-back" onclick="goBackToCatalog()">🛒 Kembali ke Katalog</button>
+    <button class="btn-secondary-custom" onclick="screenshotReceipt()">📸 Simpan Bukti (Screenshot)</button>
+
+    <!-- Branding Footer -->
+    <footer class="text-center py-5 mt-4 opacity-50" style="font-size: 0.75rem; letter-spacing: 1px;">
+        <p class="mb-0 fw-bold text-muted">POWERED BY JASTIP STUDIO</p>
+    </footer>
+
+    <div style="height: 40px;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ========== KONFIGURASI SUPABASE (Sama dengan event.html) ==========
+        const SUPABASE_URL = 'https://tnpblnxqakljbgiofgze.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRucGJsbnhxYWtsamJnaW9mZ3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTY2NzcsImV4cCI6MjA5MDI3MjY3N30.1IrQTdgEJ1FGvzn_cTwcstoAPaYRQrMXgQvSFYY1DJA';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const params = new URLSearchParams(window.location.search);
+        const grabId = params.get('id');
+        let currentEventId = null;
+
+        async function loadGrabDetails() {
+            if (!grabId) {
+                alert('Detail pesanan tidak ditemukan!');
+                return;
+            }
+
+            try {
+                // Fetch grab details with related tables
+                const { data: grab, error } = await sb
+                    .from('event_grabs')
+                    .select('*, event_items(*), live_events(title)')
+                    .eq('id', grabId)
+                    .single();
+
+                if (error || !grab) throw new Error('Data tidak ditemukan');
+
+                currentEventId = grab.event_id;
+
+                // Populate UI
+                document.getElementById('eventName').textContent = grab.live_events.title;
+                document.getElementById('itemNameDisplay').textContent = grab.event_items.item_name;
+                document.getElementById('itemPriceDisplay').textContent = 'Rp ' + Number(grab.event_items.price).toLocaleString('id-ID');
+                document.getElementById('customerNameDisplay').textContent = grab.customer_name;
+                document.getElementById('customerPhoneDisplay').textContent = grab.customer_phone;
+                document.getElementById('grabTime').textContent = new Date(grab.created_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+
+                // Item Image
+                const imgContainer = document.getElementById('itemImageContainer');
+                const displayImg = grab.event_items.image_url || grab.event_items.image_data;
+                if (displayImg && displayImg !== 'null') {
+                    imgContainer.innerHTML = `<img src="${displayImg}" class="receipt-item-img" alt="${grab.event_items.item_name}">`;
+                } else {
+                    imgContainer.innerHTML = `<div class="receipt-item-placeholder"><i class="bi bi-image fs-4"></i></div>`;
+                }
+
+                createConfetti();
+
+            } catch (e) {
+                console.error(e);
+                document.querySelector('.receipt-card').innerHTML = `<div class="p-4 text-center text-danger">Gagal memuat data: ${e.message}</div>`;
+            }
+        }
+
+        function goBackToCatalog() {
+            if (currentEventId) {
+                window.location.href = `event.html?id=${currentEventId}`;
+            } else {
+                window.history.back();
+            }
+        }
+
+        function screenshotReceipt() {
+            alert('💡 Tips: Tekan tombol Volume Down + Power secara bersamaan di HP kamu untuk screenshot halaman ini!');
+        }
+
+        // ========== CONFETTI ==========
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#e8a0bf', '#f2d1d1', '#ffd700', '#87ceeb', '#98fb98', '#dda0dd'];
+            
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 0.5 + 's';
+                piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.width = (6 + Math.random() * 8) + 'px';
+                piece.style.height = (6 + Math.random() * 8) + 'px';
+                container.appendChild(piece);
+            }
+        }
+
+        // GO!
+        loadGrabDetails();
+    </script>
+</body>
+</html>

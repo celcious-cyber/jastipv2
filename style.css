@@ -1,0 +1,198 @@
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap');
+
+/* ============================================
+   TEMA DINAMIS - Semua warna dikontrol via CSS Variables
+   ============================================ */
+:root {
+    /* Warna Primer (Tombol, Nav aktif, Border input, Badge) */
+    --terracotta: #e8a0bf;
+    /* Warna Sekunder (Judul, Ikon, Link, Box accent) */
+    --sage-green: #f2d1d1;
+    /* Background */
+    --cream: #fdfaf6;
+    --sand: #f7ede2;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #4a4a4a;
+}
+
+body.bg-rustic-cream {
+    background-color: var(--cream) !important;
+    font-family: 'Jost', sans-serif;
+}
+
+/* ============ JUDUL - Berubah warna tema ============ */
+.rustic-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--terracotta);
+    font-weight: 700;
+}
+
+/* ============ KARTU & BOX - Aksen tema ============ */
+.rustic-card {
+    border: none !important;
+    border-radius: 24px !important;
+    background-color: #fff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06) !important;
+}
+
+.summary-card {
+    border-radius: 24px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border-left: 4px solid var(--terracotta) !important;
+}
+.summary-card:hover {
+    transform: translateY(-3px);
+}
+
+/* ============ TEKS UTILITY ============ */
+.text-sage-green { color: var(--sage-green) !important; }
+.text-terracotta { color: var(--terracotta) !important; }
+
+/* ============ IKON DASHBOARD - Ikut warna tema ============ */
+.action-btn {
+    border: none;
+    transition: transform 0.15s ease-in-out;
+}
+.action-btn:active {
+    transform: scale(0.95);
+}
+.action-btn i {
+    color: var(--terracotta) !important;
+}
+
+/* ============ NAVBAR BAWAH - Border & aktif ikut tema ============ */
+.bottom-nav {
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    z-index: 1030;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    border-top: 3px solid var(--sage-green);
+}
+.bottom-nav .nav-item {
+    transition: color 0.2s;
+}
+.bottom-nav .nav-item.active,
+.bottom-nav .nav-item:hover {
+    color: var(--terracotta) !important;
+}
+
+/* ============ INPUT - Border & Ikon ikut tema ============ */
+.rustic-input-group {
+    background-color: var(--sand);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 2px solid var(--terracotta);
+    overflow: hidden;
+}
+.rustic-input-group .input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--terracotta);
+    padding-left: 1.25rem;
+    padding-right: 0.5rem;
+}
+.form-control.rustic-input {
+    background-color: var(--sand);
+    border: none;
+    box-shadow: none !important;
+    padding: 1rem 1rem 1rem 0;
+    color: #333;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+.form-control.rustic-input::placeholder { color: #a4a4a4; font-weight: 400; }
+.form-control.rustic-input:focus { background-color: var(--sand); }
+
+/* ============ TOMBOL PRIMER - Warna penuh dari tema ============ */
+.btn-primary {
+    background-color: var(--terracotta) !important;
+    border-color: var(--terracotta) !important;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.btn-primary:active, .btn-primary:hover, .btn-primary:focus {
+    filter: brightness(0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* ============ LINK - Ikut tema ============ */
+.rustic-link { color: var(--terracotta); transition: color 0.2s; }
+.rustic-link:hover { filter: brightness(0.8); }
+
+/* ============ PESAN ERROR ============ */
+.rustic-error {
+    color: #c0392b;
+    font-size: 0.875rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: #fdecea;
+    display: flex;
+    align-items: flex-start;
+    border-left: 4px solid #e74c3c;
+    font-weight: 500;
+    line-height: 1.4;
+}
+.rustic-error i { font-size: 1.1rem; margin-top: -1px; }
+
+/* ============ HEADER - Garis aksen bawah ============ */
+header.sticky-top {
+    border-bottom: 2px solid var(--sage-green) !important;
+}
+
+/* ============ BADGE ============ */
+.bg-sage-green { background-color: var(--sage-green) !important; color: white !important; }
+
+/* ============ PRO Feature Locking ============ */
+.pro-locked {
+    filter: grayscale(100%);
+    opacity: 0.5;
+    position: relative;
+    cursor: not-allowed;
+    background-color: #efefef !important;
+}
+.pro-locked::after {
+    content: '\F4B8';
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--terracotta);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.pro-locked-nav {
+    filter: grayscale(100%);
+    opacity: 0.5;
+    position: relative;
+}
+.pro-locked-nav::after {
+    content: '\F4B8';
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: -5px;
+    right: 15px;
+    color: var(--terracotta);
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Modal UI */
+.rustic-modal {
+    border-radius: 30px;
+    background-color: var(--cream);
+    overflow: hidden;
+}

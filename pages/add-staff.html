@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undang Karyawan - Jastip Studio</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="bg-rustic-cream pb-5">
+    
+    <header class="bg-white shadow-sm sticky-top">
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center">
+                <a href="staff.html" class="btn btn-sm bg-light rounded-circle border-0 shadow-sm me-3" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-arrow-left fs-6 text-dark fw-bold"></i>
+                </a>
+                <h1 class="rustic-title m-0 fs-4">Undang Anggota</h1>
+            </div>
+            <button type="submit" form="addStaffForm" class="btn btn-dark btn-sm rounded-pill px-3 shadow-sm" id="btnInvite">
+                <i class="bi bi-send-fill me-1"></i> Kirim
+            </button>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        
+        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white mb-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-envelope-at me-2 text-sage-green"></i>Identitas Karyawan Baru</h6>
+            <form id="addStaffForm">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Email Calon Karyawan</label>
+                    <div class="input-group rustic-input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope-plus"></i></span>
+                        <input type="email" class="form-control rustic-input" id="staffEmail" placeholder="nama@email.com" required>
+                    </div>
+                    <div class="form-text mt-2 small opacity-75">
+                        <i class="bi bi-info-circle me-1"></i> 
+                        Pastikan email benar. Karyawan harus mendaftar (Sign Up) dengan email ini agar bisa terhubung secara otomatis ke toko Anda.
+                    </div>
+                </div>
+
+                <div class="bg-light p-3 rounded-4 border border-light">
+                    <p class="x-small text-muted m-0">
+                        <strong>Role Default:</strong> <span class="badge bg-sage-green rounded-pill">STAFF</span> <br>
+                        Karyawan tidak dapat mengakses Laporan Keuangan, Pengaturan Toko, maupun Manajemen Tim.
+                    </p>
+                </div>
+
+                <div id="formError" class="alert alert-danger d-none mt-4 rounded-4 small">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <span>Gagal mengundang.</span>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../add_staff.js"></script>
+</body>
+</html>

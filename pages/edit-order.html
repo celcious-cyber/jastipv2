@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Replikator Transaksi - Jastip</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .item-row { border-left: 3px solid #f39c12; padding-left: 12px; margin-bottom: 20px; transition: all 0.2s ease;}
+        .form-select:focus, .form-control:focus { box-shadow: none; border-color: inherit; outline: none; }
+    </style>
+</head>
+<body class="bg-rustic-cream pb-5 mb-5">
+    
+    <header class="bg-white shadow-sm sticky-top">
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center">
+                <button onclick="window.history.back()" class="btn btn-sm bg-light rounded-circle border-0 shadow-sm me-3" style="width: 36px; height: 36px;">
+                    <i class="bi bi-arrow-left fs-6 text-dark fw-bold"></i>
+                </button>
+                <h1 class="rustic-title m-0 fs-4">Revisi Tagihan Lama</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Indikator Beban Pre-Populate Database -->
+    <div id="loadingState" class="text-center py-5">
+        <div class="spinner-grow text-warning" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Mengkloning Masa Lalu...</span>
+        </div>
+    </div>
+
+    <!-- Papan Catur Utama yang disembunyikan sampai Pre-populate selesai -->
+    <main class="container my-4 d-none" id="mainEditorContainer">
+        <div class="card rustic-card border-0 shadow-sm p-3 p-md-4" style="border-radius: 20px;">
+            <div class="card-body">
+                <form id="editOrderForm">
+                    
+                    <!-- Sektor 1: Pengikatan Pelanggan -->
+                    <h5 class="fw-bold text-dark mb-3" style="font-family: 'Jost', sans-serif;"><i class="bi bi-person-bounding-box me-2 text-warning"></i>Nama Pelanggan</h5>
+                    
+                    <div class="mb-4 pb-2 border-bottom">
+                        <label class="form-label small fw-bold text-muted">Arahkan Tagihan Kepada Pelanggan Ini</label>
+                        <select id="selectCustomer" class="form-select rustic-input bg-light border-0 py-3 rounded-4 px-3 fw-medium shadow-sm" required>
+                            <!-- Diisi oleh JS -->
+                        </select>
+                    </div>
+
+                    <!-- Sektor 2: Transaksi Keranjang Dinamis Multi-Item -->
+                    <h5 class="fw-bold text-dark mb-3 mt-4" style="font-family: 'Jost', sans-serif;">
+                        <i class="bi bi-cart4 me-2 text-warning"></i>Rincian Barang (Revisi)
+                    </h5>
+                    
+                    <div id="dynamicItemsContainer" class="p-3 bg-white border border-light rounded-4 shadow-sm mb-3">
+                        <!-- Baris Input Barang Akan Dibangkitkan Sesuai Database di Sini Oleh JS-->
+                    </div>
+
+                    <div class="mb-4 pb-2 border-bottom text-end">
+                        <button type="button" class="btn btn-sm text-dark bg-warning rounded-pill px-4 py-2 shadow-sm fw-bold border-0" id="btnAddItemRow">
+                            <i class="bi bi-plus-lg fs-6"></i> Tambah Item Susulan
+                        </button>
+                    </div>
+
+                    <!-- Sektor 3: Rekap Finansial -->
+                    <h5 class="fw-bold text-dark mb-3 mt-4" style="font-family: 'Jost', sans-serif;"><i class="bi bi-calculator me-2 text-warning"></i>Kalkulasi Koreksian Akhir</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Suntikan Fee Jastip / Packing</label>
+                        <div class="input-group shadow-sm" style="border-radius: 16px;">
+                            <span class="input-group-text border-0 bg-light text-muted ps-4 border-end-0">Rp</span>
+                            <input type="number" id="inputFeeJastip" class="form-control bg-light border-0 py-3 fw-bold fs-6 text-dark" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;" value="2000" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Tangkapan Ongkir -->
+                    <div class="mb-4 pb-2">
+                        <label class="form-label small fw-bold text-muted">Biaya Ekspedisi / Ongkos Kirim</label>
+                        <div class="input-group shadow-sm" style="border-radius: 16px;">
+                            <span class="input-group-text border-0 bg-light text-muted ps-4 border-end-0">Rp</span>
+                            <input type="number" id="inputShippingCost" class="form-control bg-light border-0 py-3 fw-bold fs-6 text-dark" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;" value="0" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Papan Visual Mesin PWA Realtime DOM Math -->
+                    <div class="mb-5 p-4 rounded-4 shadow-lg text-white d-flex justify-content-between align-items-center bg-dark">
+                        <div>
+                            <span class="d-block small fw-bold opacity-75 letter-spacing-1 text-warning">GRAND TOTAL DIREVISI</span>
+                            <span id="grandTotalDisplay" class="fs-1 fw-bold font-monospace mt-1 d-block text-warning">Rp 0</span>
+                        </div>
+                        <i class="bi bi-wallet2 text-white opacity-25" style="font-size: 3rem;"></i>
+                    </div>
+
+                    <div id="formError" class="rustic-error d-none mb-4 shadow-sm" style="background-color: #fbeee8;">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> <span class="fw-bold"></span>
+                    </div>
+
+                    <!-- Mengingat Perjanjian Fitur Cerdas Khusus: Manual Stock Adjustment -->
+                    <div class="alert alert-warning border-0 shadow-sm rounded-4 small fw-medium mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i> **Peringatan PWA:** Merubah *Kuantitas* atau menghapus baris di halaman *Edit* ini <b>TIDAK AKAN</b> menambah atau mengurangi stok barang di Gudang secara otomatis. Silakan kurangi manual di inventori jika perlu.
+                    </div>
+
+                    <button type="submit" class="btn btn-warning text-dark w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm transition-all" id="btnSubmit">
+                        <i class="bi bi-pencil-square me-2"></i> Timpa Laporan Basis Data
+                    </button>
+                    
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../edit-order.js"></script>
+</body>
+</html>

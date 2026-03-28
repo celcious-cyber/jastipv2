@@ -1,0 +1,23 @@
+{
+  "name": "Jastip Studio PWA",
+  "short_name": "JastipStudio",
+  "description": "Personal Shopping Assistant & Order Management",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fdfaf6",
+  "theme_color": "#c67156",
+  "icons": [
+    {
+      "src": "/jastip-icon-512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/jastip-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

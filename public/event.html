@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Katalog - Jastip Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root { 
+            --primary: #e8a0bf; 
+            --secondary: #f2d1d1; 
+            --cream: #fdfaf6; 
+            --terracotta: #c67156;
+            --sage-green: #8da192;
+            --sand: #e6d5c1;
+        }
+        * { box-sizing: border-box; }
+        body { background: var(--cream); font-family: 'Jost', sans-serif; color: #333; margin: 0; padding: 0; }
+        
+        .live-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 20px; text-align: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .live-header h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0 0 4px 0; }
+        .live-header p { font-size: 0.8rem; margin: 0; opacity: 0.9; }
+        .live-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; display: inline-block; margin-right: 6px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        .catalog-grid { padding: 16px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 600px; margin: auto; }
+        
+        .product-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            transition: transform 0.2s;
+        }
+        .product-card:active { transform: scale(0.97); }
+        .product-card img { width: 100%; height: 140px; object-fit: cover; }
+        .product-card .no-img { height: 140px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2rem; }
+        .product-info { padding: 10px 12px; }
+        .product-info h3 { font-size: 0.85rem; font-weight: 700; margin: 0 0 6px 0; line-height: 1.3; }
+        .product-info .price { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+        .product-info .stock { font-size: 0.7rem; padding: 3px 8px; border-radius: 10px; font-weight: 600; }
+        .stock-available { background: #d4edda; color: #155724; }
+        .stock-empty { background: #f8d7da; color: #721c24; }
+        
+        .btn-grab {
+            width: 100%; border: none; padding: 10px;
+            border-radius: 0 0 16px 16px; font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+            background: var(--primary); color: white;
+        }
+        .btn-grab:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+        .btn-grab:not(:disabled):active { filter: brightness(0.9); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal-sheet {
+            background: white; border-radius: 24px 24px 0 0; width: 100%; max-width: 500px;
+            padding: 24px; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-sheet h3 { font-family: 'Playfair Display', serif; color: var(--primary); margin: 0 0 16px 0; }
+        .modal-sheet input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; margin-bottom: 12px; font-family: 'Jost', sans-serif; }
+        .modal-sheet input:focus { outline: none; border-color: var(--primary); }
+        .btn-confirm { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; }
+        .btn-confirm:disabled { background: #ccc; }
+        .btn-cancel { width: 100%; padding: 12px; background: none; border: none; color: #999; font-weight: 500; cursor: pointer; margin-top: 8px; }
+
+        /* Loading */
+        .loading-screen { text-align: center; padding: 60px 20px; }
+        .loading-screen .spinner { width: 40px; height: 40px; border: 4px solid #eee; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Event Closed */
+        .closed-banner { text-align: center; padding: 60px 20px; }
+        .closed-banner i { font-size: 4rem; color: #ccc; }
+
+        /* New item animation */
+        .product-card.new-item { animation: popIn 0.4s ease; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Toast */
+        .toast-success {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: #28a745; color: white; padding: 12px 24px; border-radius: 50px;
+            font-weight: 600; font-size: 0.9rem; z-index: 9999;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="live-header" id="liveHeader">
+        <div><span class="live-dot"></span><span style="font-size: 0.75rem; font-weight: 600;">LIVE KATALOG</span></div>
+        <h1 id="eventTitle">Memuat...</h1>
+        <p id="eventInfo"></p>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="spinner"></div>
+        <p style="color: #999;">Memuat katalog...</p>
+    </div>
+
+    <!-- Closed State -->
+    <div class="closed-banner d-none" id="closedBanner">
+        <i class="bi bi-check-circle-fill"></i>
+        <h4 style="margin-top: 12px; font-weight: 700;">Event Sudah Berakhir</h4>
+        <p style="color: #999;">Terima kasih sudah berpartisipasi!</p>
+    </div>
+
+    <!-- Catalog Grid -->
+    <div class="catalog-grid" id="catalogGrid" style="display: none;"></div>
+
+    <!-- Branding Footer -->
+    <footer class="text-center py-5 mt-4 opacity-50" style="font-size: 0.75rem; letter-spacing: 1px;">
+        <p class="mb-0 fw-bold">POWERED BY JASTIP STUDIO</p>
+        <p class="x-small">Solusi Jastip Live No. 1 di Indonesia</p>
+    </footer>
+
+    <!-- Empty State -->
+    <div class="text-center py-5 d-none" id="emptyState">
+        <i class="bi bi-hourglass-split" style="font-size: 3rem; color: #ccc;"></i>
+        <p style="color: #999; margin-top: 12px;">Admin sedang menyiapkan barang...<br>Halaman ini akan otomatis ter-update!</p>
+    </div>
+
+    <!-- Modal Grab -->
+    <div class="modal-overlay" id="grabModal">
+        <div class="modal-sheet">
+            <h3>🛍️ Ambil Barang!</h3>
+            <p id="grabItemName" style="font-weight: 600; margin-bottom: 16px;"></p>
+            <input type="text" id="grabName" placeholder="Nama Lengkap Kamu" required>
+            <input type="tel" id="grabPhone" placeholder="No. WhatsApp (08xxx)" required>
+            <textarea id="grabAddress" placeholder="Alamat Pengiriman Lengkap" required style="width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; margin-bottom: 16px; font-family: 'Jost', sans-serif; resize: none;" rows="2"></textarea>
+            <button class="btn-confirm" id="btnConfirmGrab">Konfirmasi Ambil!</button>
+            <button class="btn-cancel" onclick="closeGrabModal()">Batal</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ============================================
+        // KONFIGURASI: Langsung hubungkan ke Supabase (Tanpa auth)
+        // ============================================
+        const SUPABASE_URL = 'https://tnpblnxqakljbgiofgze.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRucGJsbnhxYWtsamJnaW9mZ3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTY2NzcsImV4cCI6MjA5MDI3MjY3N30.1IrQTdgEJ1FGvzn_cTwcstoAPaYRQrMXgQvSFYY1DJA';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const eventId = new URLSearchParams(window.location.search).get('id');
+        let currentGrabItemId = null;
+        let currentGrabItemName = null;
+        let allItems = [];
+
+        // ============================================
+        // 1. LOAD EVENT INFO
+        // ============================================
+        async function loadEvent() {
+            if (!eventId) {
+                document.getElementById('loadingScreen').innerHTML = '<p style="color:#c00;">Link tidak valid.</p>';
+                return;
+            }
+
+            const { data: event, error } = await sb.from('live_events').select('*').eq('id', eventId).single();
+
+            if (error || !event) {
+                document.getElementById('loadingScreen').innerHTML = '<p style="color:#c00;">Event tidak ditemukan.</p>';
+                return;
+            }
+
+            document.getElementById('eventTitle').textContent = event.title;
+            document.getElementById('eventInfo').textContent = `📍 ${event.location || '-'} · ⏱️ ${event.duration || '-'}`;
+            document.title = `${event.title} - Live Katalog`;
+
+            if (event.status !== 'active') {
+                document.getElementById('loadingScreen').classList.add('d-none');
+                document.getElementById('closedBanner').classList.remove('d-none');
+                return;
+            }
+
+            await loadItems();
+            setupRealtime();
+        }
+
+        // ============================================
+        // 2. LOAD ITEMS (Katalog)
+        // ============================================
+        async function loadItems() {
+            const { data } = await sb.from('event_items').select('*').eq('event_id', eventId).order('created_at', { ascending: false });
+            allItems = data || [];
+            renderItems();
+        }
+
+        function renderItems() {
+            const grid = document.getElementById('catalogGrid');
+            const loading = document.getElementById('loadingScreen');
+            const empty = document.getElementById('emptyState');
+            
+            loading.style.display = 'none';
+            
+            if (allItems.length === 0) {
+                grid.style.display = 'none';
+                empty.classList.remove('d-none');
+                return;
+            }
+
+            empty.classList.add('d-none');
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+
+            allItems.forEach(item => {
+                const isAvailable = item.stock_qty > 0;
+                const displayImg = item.image_url || item.image_data; // Support URL and Legacy Base64
+                const card = document.createElement('div');
+                card.className = 'product-card new-item';
+                card.innerHTML = `
+                    ${displayImg ? `<img src="${displayImg}" alt="${item.item_name}" loading="lazy">` : `<div class="no-img"><i class="bi bi-image"></i></div>`}
+                    <div class="product-info">
+                        <div class="text-muted" style="font-size: 0.7rem;">${item.brand_name || '-'}</div>
+                        <h3>${item.item_name}</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span class="price">Rp ${Number(item.price).toLocaleString('id-ID')}</span>
+                            <span class="stock ${isAvailable ? 'stock-available' : 'stock-empty'}">
+                                ${isAvailable ? `Sisa ${item.stock_qty}` : 'HABIS'}
+                            </span>
+                        </div>
+                    </div>
+                    <button class="btn-grab" ${!isAvailable ? 'disabled' : ''} onclick="openGrabModal('${item.id}', '${item.item_name.replace(/'/g, "\\'")}')">
+                        ${isAvailable ? '🛒 Ambil!' : '😔 Habis'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ============================================
+        // 3. GRAB MODAL & LOGIC
+        // ============================================
+        function openGrabModal(itemId, itemName) {
+            currentGrabItemId = itemId;
+            currentGrabItemName = itemName;
+            document.getElementById('grabItemName').textContent = itemName;
+            document.getElementById('grabModal').classList.add('show');
+            document.getElementById('grabName').focus();
+        }
+
+        function closeGrabModal() {
+            document.getElementById('grabModal').classList.remove('show');
+            document.getElementById('grabName').value = '';
+            document.getElementById('grabPhone').value = '';
+            document.getElementById('grabAddress').value = '';
+            currentGrabItemId = null;
+        }
+
+        document.getElementById('btnConfirmGrab').addEventListener('click', async () => {
+            const name = document.getElementById('grabName').value.trim();
+            const phone = document.getElementById('grabPhone').value.trim();
+            const address = document.getElementById('grabAddress').value.trim();
+            const btn = document.getElementById('btnConfirmGrab');
+
+            if (!name || !phone || !address) { alert('Isi Nama, Nomor WA, dan Alamat Lengkap!'); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+
+            try {
+                // A. Cek stok terkini
+                const { data: item } = await sb.from('event_items').select('stock_qty').eq('id', currentGrabItemId).single();
+                
+                if (!item || item.stock_qty <= 0) {
+                    alert('Maaf, barang ini sudah habis!');
+                    closeGrabModal();
+                    loadItems();
+                    return;
+                }
+
+                // B. Kurangi stok
+                const { error: updateErr } = await sb.from('event_items').update({ stock_qty: item.stock_qty - 1 }).eq('id', currentGrabItemId);
+                if (updateErr) throw updateErr;
+
+                // C. Catat grab (tambahkan address jika database sudah support, fallback opsional)
+                const grabData = {
+                    event_item_id: currentGrabItemId,
+                    event_id: eventId,
+                    customer_name: name,
+                    customer_phone: phone,
+                    customer_address: address,
+                    qty: 1
+                };
+                
+                const { data: newGrab, error: grabErr } = await sb.from('event_grabs').insert([grabData]).select().single();
+
+                if (grabErr) throw grabErr;
+
+                // D. Sukses!
+                playDing();
+                setTimeout(() => {
+                    closeGrabModal();
+                    window.location.href = `grab-success.html?id=${newGrab.id}`;
+                }, 300); // Tunggu sebentar agar suara selesai/mulai
+
+            } catch (e) {
+                alert('Gagal: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Konfirmasi Ambil!';
+            }
+        });
+
+        // ============================================
+        // 4. REALTIME: Auto-update katalog
+        // ============================================
+        function setupRealtime() {
+            // Dengarkan item baru / update stok
+            sb.channel('public-catalog')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'event_items', filter: `event_id=eq.${eventId}` }, (payload) => {
+                    console.log('Realtime update:', payload);
+                    loadItems();
+                })
+                .subscribe();
+
+            // Dengarkan event ditutup
+            sb.channel('public-event-status')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'live_events', filter: `id=eq.${eventId}` }, (payload) => {
+                    if (payload.new.status === 'closed') {
+                        document.getElementById('catalogGrid').style.display = 'none';
+                        document.getElementById('closedBanner').classList.remove('d-none');
+                    }
+                })
+                .subscribe();
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-success';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function playDing() {
+            try {
+                const ding = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YV9vT18AAAAAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBycnJyclJSUlJSUlJycnJycnJycnJycnJyclJSUlJSUlJycnJycnJycnJy');
+                ding.play().catch(() => {});
+            } catch(e) {}
+        }
+
+        // ============================================
+        // 5. SYNC GLOBAL DESIGN (Warna Toko)
+        // ============================================
+        async function syncStoreTheme() {
+            try {
+                // Cari store_id dari event_id
+                const { data: event } = await sb.from('live_events').select('store_id').eq('id', eventId).single();
+                if (!event) return;
+
+                const { data: settings } = await sb.from('store_settings').select('theme_color_primary, theme_color_secondary').eq('id', event.store_id).single();
+                if (settings) {
+                    if (settings.theme_color_primary) document.documentElement.style.setProperty('--primary', settings.theme_color_primary);
+                    if (settings.theme_color_secondary) document.documentElement.style.setProperty('--secondary', settings.theme_color_secondary);
+                }
+            } catch(e) { console.warn('Failed to sync theme:', e); }
+        }
+
+        // GO!
+        loadEvent();
+        syncStoreTheme();
+    </script>
+</body>
+</html>

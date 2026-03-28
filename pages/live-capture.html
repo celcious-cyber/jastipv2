@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Capture - Jastip Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .capture-zone {
+            border: 3px dashed var(--sage-green);
+            border-radius: 20px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            background: var(--sand);
+        }
+        .capture-zone img { width: 100%; height: 200px; object-fit: cover; }
+        .capture-zone .placeholder-icon { font-size: 3rem; color: var(--terracotta); }
+        .item-card-live {
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .item-card-live img { height: 120px; object-fit: cover; width: 100%; }
+        .live-indicator { width: 10px; height: 10px; background: red; border-radius: 50%; display: inline-block; animation: pulse-red 1s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); } 70% { box-shadow: 0 0 0 10px rgba(255,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); } }
+        .grab-counter { font-size: 0.7rem; background: var(--terracotta); color: white; padding: 2px 8px; border-radius: 10px; }
+        
+        /* Grab Log Styling */
+        .grab-log-container {
+            max-height: 300px; overflow-y: auto;
+            background: #fff; border-radius: 16px;
+            padding: 10px; border: 1px solid #eee;
+        }
+        .grab-log-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-bottom: 1px solid #f9f9f9;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } }
+        .grab-log-item:last-child { border-bottom: none; }
+        .grab-log-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .grab-log-info { flex: 1; min-width: 0; }
+        .grab-log-info h6 { font-size: 0.8rem; margin: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .grab-log-info p { font-size: 0.7rem; margin: 0; color: #888; }
+        .grab-log-time { font-size: 0.6rem; color: #bbb; }
+
+        /* Action Buttons on Cards */
+        .item-actions {
+            position: absolute; top: 8px; right: 8px;
+            display: flex; gap: 6px; z-index: 10;
+        }
+        .btn-action-mini {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+        .btn-action-mini:active { transform: scale(0.9); }
+        .btn-edit-mini { background: white; color: var(--terracotta); }
+        .btn-delete-mini { background: #ff4444; color: white; }
+        
+        /* Floating Share Button */
+        .fab-share {
+            position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: #25D366; color: white; border: none;
+            font-size: 1.5rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            display: flex; align-items: center; justify-content: center;
+            animation: fabPulse 2s infinite;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .fab-share:active { transform: scale(0.9); }
+        @keyframes fabPulse { 0%,100% { box-shadow: 0 4px 15px rgba(37,211,102,0.4); } 50% { box-shadow: 0 4px 25px rgba(37,211,102,0.7); } }
+        
+        /* Share Bottom Sheet */
+        .share-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); z-index: 1050; display: none; }
+        .share-overlay.show { display: block; }
+        .share-sheet {
+            position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1051;
+            background: white; border-radius: 24px 24px 0 0;
+            padding: 24px; transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        .share-sheet.show { transform: translateY(0); }
+        .share-sheet h6 { font-weight: 700; margin-bottom: 16px; }
+        .share-option {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 16px; cursor: pointer;
+            border: none; width: 100%; background: none;
+            font-weight: 600; font-size: 0.95rem; transition: background 0.2s;
+        }
+        .share-option:hover { background: #f5f5f5; }
+        .share-option .icon-circle {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: white;
+        }
+    </style>
+</head>
+<body class="bg-rustic-cream pb-5">
+    <header class="bg-white shadow-sm sticky-top">
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center">
+                <button onclick="window.location.href='live-events.html'" class="btn btn-sm bg-light rounded-circle border-0 shadow-sm me-3" style="width: 36px; height: 36px;">
+                    <i class="bi bi-arrow-left fs-6 text-dark fw-bold"></i>
+                </button>
+                <div>
+                    <span class="live-indicator me-1"></span>
+                    <span class="fw-bold rustic-title fs-5" id="eventTitle">Loading...</span>
+                </div>
+            </div>
+            <span class="grab-counter" id="grabCount">0 Grab</span>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        <!-- Form Capture Barang -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <h6 class="fw-bold mb-3"><i class="bi bi-camera-fill me-2" style="color: var(--terracotta);"></i>Capture Barang Baru</h6>
+            <form id="captureForm">
+                <div class="capture-zone mb-3" onclick="document.getElementById('photoInput').click()">
+                    <div id="photoPreview" class="text-center">
+                        <i class="bi bi-camera placeholder-icon"></i>
+                        <p class="small text-muted mt-2 mb-0">Ketuk untuk ambil foto</p>
+                    </div>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" capture="environment" class="d-none">
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Nama Barang</label>
+                    <input type="text" class="form-control bg-light border-0 py-2 rounded-3 fw-medium" id="itemName" placeholder="Cth: Sepatu Lari" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Nama Brand</label>
+                    <input type="text" class="form-control bg-light border-0 py-2 rounded-3" id="itemBrand" placeholder="Cth: Nike (Opsional)">
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small fw-bold text-muted">HPP (Modal)</label>
+                        <input type="number" class="form-control bg-light border-0 py-2 rounded-3 font-monospace" id="itemHPP" placeholder="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-bold text-muted">Harga Jual</label>
+                        <input type="number" class="form-control bg-light border-0 py-2 rounded-3 font-monospace" id="itemPrice" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Stok Ready</label>
+                    <input type="number" class="form-control bg-light border-0 py-2 rounded-3" id="itemStock" value="1" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold mt-2" id="btnCapture">
+                    <i class="bi bi-plus-circle me-2"></i>Tambah ke Katalog Live
+                </button>
+            </form>
+        </div>
+
+        <!-- Tambahan: Log Grab Terbaru (Real-time) -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <h6 class="fw-bold mb-3"><i class="bi bi-activity me-2" style="color: #25D366;"></i>Aktivitas Grab Terbaru</h6>
+            <div id="grabLog" class="grab-log-container">
+                <div class="text-center py-4 text-muted small">Belum ada aktivitas grab...</div>
+            </div>
+        </div>
+
+        <!-- Daftar Item yang Sudah Di-capture -->
+        <h6 class="fw-bold mb-3 text-muted"><i class="bi bi-grid-3x3-gap me-2"></i>Katalog Saat Ini</h6>
+        <div class="row g-3" id="itemGrid">
+            <div class="col-12 text-center py-4 text-muted" id="emptyItems">
+                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                <p class="small mt-2">Belum ada barang. Capture barang pertama!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Share Button (WhatsApp hijau) -->
+    <button class="fab-share" onclick="toggleShareSheet()" id="fabShare" title="Bagikan ke Pelanggan">
+        <i class="bi bi-share-fill"></i>
+    </button>
+
+    <!-- Share Bottom Sheet -->
+    <div class="share-overlay" id="shareOverlay" onclick="toggleShareSheet()"></div>
+    <div class="share-sheet" id="shareSheet">
+        <h6><i class="bi bi-send me-2" style="color: var(--terracotta);"></i>Bagikan Katalog ke Pelanggan</h6>
+        
+        <button class="share-option" onclick="shareToWhatsApp()">
+            <div class="icon-circle" style="background: #25D366;"><i class="bi bi-whatsapp"></i></div>
+            <span>Kirim via WhatsApp</span>
+        </button>
+        
+        <button class="share-option" onclick="copyPublicLink()">
+            <div class="icon-circle" style="background: var(--terracotta);"><i class="bi bi-clipboard"></i></div>
+            <span>Salin Link</span>
+        </button>
+
+        <button class="share-option" onclick="nativeShare()">
+            <div class="icon-circle" style="background: #4a90d9;"><i class="bi bi-box-arrow-up"></i></div>
+            <span>Opsi Lainnya...</span>
+        </button>
+
+        <button class="share-option mt-2" onclick="toggleShareSheet()" style="justify-content: center; color: #999;">
+            Tutup
+        </button>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Edit Barang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Barang</label>
+                            <input type="text" class="form-control bg-light border-0 py-2 rounded-3 fw-medium" id="editItemName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Brand</label>
+                            <input type="text" class="form-control bg-light border-0 py-2 rounded-3" id="editItemBrand">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted">HPP (Modal)</label>
+                                <input type="number" class="form-control bg-light border-0 py-2 rounded-3 font-monospace" id="editItemHPP">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted">Harga Jual</label>
+                                <input type="number" class="form-control bg-light border-0 py-2 rounded-3 font-monospace" id="editItemPrice" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Stok Ready</label>
+                            <input type="number" class="form-control bg-light border-0 py-2 rounded-3" id="editItemStock" required>
+                        </div>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="button" class="btn btn-light rounded-pill flex-fill py-3 fw-bold" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary rounded-pill flex-fill py-3 fw-bold" id="btnUpdateItem">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../live-capture.js"></script>
+
+    <script>
+        // ========== SHARE LOGIC ==========
+        function getPublicUrl() {
+            const eventId = new URLSearchParams(window.location.search).get('id');
+            return `${window.location.origin}/public/event.html?id=${eventId}`;
+        }
+
+        function getEventTitle() {
+            return document.getElementById('eventTitle').textContent || 'Live Event';
+        }
+
+        function toggleShareSheet() {
+            document.getElementById('shareOverlay').classList.toggle('show');
+            document.getElementById('shareSheet').classList.toggle('show');
+        }
+
+        function shareToWhatsApp() {
+            const url = getPublicUrl();
+            const title = getEventTitle();
+            const text = `🔴 *LIVE KATALOG - ${title}*\n\nHai kak! Yuk lihat barang-barang terbaru kami:\n${url}\n\n👆 Klik link di atas, pilih barang, lalu tekan *Ambil!* untuk mengunci stok kamu ya!\n\n_Stok terbatas, siapa cepat dia dapat!_ 🏃‍♀️💨`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            toggleShareSheet();
+        }
+
+        function copyPublicLink() {
+            navigator.clipboard.writeText(getPublicUrl()).then(() => {
+                alert('✅ Link berhasil disalin!');
+                toggleShareSheet();
+            });
+        }
+
+        function nativeShare() {
+            const url = getPublicUrl();
+            const title = getEventTitle();
+            if (navigator.share) {
+                navigator.share({ title: `Live Katalog - ${title}`, text: `Yuk lihat katalog live kami!`, url: url });
+            } else {
+                copyPublicLink();
+            }
+            toggleShareSheet();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Barang - Jastip PWA</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="bg-rustic-cream pb-5 mb-5">
+    
+    <!-- Top Header Cepat PWA -->
+    <header class="bg-white shadow-sm sticky-top">
+        <div class="container d-flex align-items-center py-3">
+            <button onclick="window.location.href='inventory.html'" class="btn btn-sm bg-light rounded-circle border-0 shadow-sm me-3" style="width: 36px; height: 36px;">
+                <i class="bi bi-arrow-left fs-6 text-dark fw-bold"></i>
+            </button>
+            <h1 class="rustic-title m-0 fs-4">Item Katalog Baru</h1>
+        </div>
+    </header>
+
+    <!-- Main Content Form -->
+    <main class="container my-4">
+        <div class="card rustic-card border-0 shadow-sm p-3 p-md-4" style="border-radius: 20px;">
+            <div class="card-body">
+                <form id="addInventoryForm">
+                    <!-- Sektor 1: Informasi Dasar -->
+                    <h5 class="fw-bold text-sage-green mb-3" style="font-family: 'Jost', sans-serif;"><i class="bi bi-box-seam me-2"></i>Identitas Barang</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Nama Barang</label>
+                        <input type="text" id="itemName" class="form-control rustic-input bg-light border-0 py-3 rounded-4 px-3 fs-6" placeholder="Misal: Tas Kanvas Motif.." required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Brand</label>
+                            <input type="text" id="itemBrand" class="form-control rustic-input bg-light border-0 py-3 rounded-4 px-3" placeholder="Uniqlo, Miniso.." required>
+                        </div>
+                        <div class="col-6 mb-4">
+                            <label class="form-label small fw-bold text-muted">Kategori Area</label>
+                            <select id="itemCategory" class="form-control rustic-input bg-light border-0 py-3 rounded-4 px-3 shadow-sm" style="appearance: auto;">
+                                <option value="Fashion">Fashion</option>
+                                <option value="Skincare">Skincare</option>
+                                <option value="Food & Snack">Food & Snack</option>
+                                <option value="Bags & Shoes">Bags & Shoes</option>
+                                <option value="Luxury (Brand)">Luxury</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="text-terracotta opacity-25 my-4">
+
+                    <!-- Sektor 2: Keuangan & Stok (Cuan Indicator) -->
+                    <h5 class="fw-bold text-terracotta mb-3 mt-2" style="font-family: 'Jost', sans-serif;"><i class="bi bi-currency-dollar me-2"></i>Variabel Keuangan</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Harga Pokok & Ongkos (HPP)</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-0 text-muted ps-4" style="background-color: #f0f0f0; border-top-left-radius: 16px; border-bottom-left-radius: 16px;">Rp</span>
+                            <input type="number" id="itemHpp" class="form-control border-0 py-3 text-dark fw-medium" style="background-color: #f0f0f0; border-top-right-radius: 16px; border-bottom-right-radius: 16px;" min="0" placeholder="Biaya Beli Pemasok" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">Harga Jual Akhir</label>
+                        <div class="input-group shadow-sm" style="border-radius: 16px;">
+                            <span class="input-group-text border-0 text-white ps-4 border-end-0" style="background-color: var(--sage-green); border-top-left-radius: 16px; border-bottom-left-radius: 16px;">Rp</span>
+                            <input type="number" id="itemPrice" class="form-control bg-light border-0 py-3 text-dark fw-medium" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 2px solid var(--sage-green);" min="0" placeholder="Jual ke Pelanggan" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label class="form-label small fw-bold text-muted">Stok Gudang Fisik</label>
+                        <input type="number" id="itemQty" class="form-control rustic-input bg-light border-0 py-3 rounded-4 px-3" style="width: 50%;" min="0" placeholder="0" required>
+                    </div>
+
+                    <!-- Alert Validasi Cerdas (Peringatan Kerugian) -->
+                    <div id="formError" class="rustic-error d-none mb-4 shadow-sm" style="background-color: #fbeee8;">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> <span class="fw-bold"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm" id="btnSubmit">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Daftarkan ke Gudang
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Path File JS Eksternal -->
+    <script src="../supabase-config.js"></script>
+    <script src="../add-inventory.js"></script>
+</body>
+</html>

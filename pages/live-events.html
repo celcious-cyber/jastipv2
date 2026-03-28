@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Event - Jastip Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .event-card { border-radius: 20px; transition: all 0.3s ease; cursor: pointer; border: 2px solid transparent; }
+        .event-card:hover { border-color: var(--terracotta); transform: translateY(-4px); }
+        .status-live { background: #d4edda; color: #155724; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .status-closed { background: #f8d7da; color: #721c24; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .share-link { font-size: 0.7rem; background: var(--sand); padding: 6px 12px; border-radius: 10px; word-break: break-all; }
+    </style>
+</head>
+<body class="bg-rustic-cream pb-5 mb-5">
+    <header class="bg-white shadow-sm sticky-top">
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center">
+                <button onclick="window.location.href='../dashboard.html'" class="btn btn-sm bg-light rounded-circle border-0 shadow-sm me-3" style="width: 36px; height: 36px;">
+                    <i class="bi bi-arrow-left fs-6 text-dark fw-bold"></i>
+                </button>
+                <h1 class="rustic-title m-0 fs-4">Live Event 🎙️</h1>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4 fw-medium shadow-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="bi bi-plus-lg me-1"></i> Buat Event
+            </button>
+        </div>
+    </header>
+
+    <main class="container my-4">
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-grow" style="color: var(--terracotta); width: 3rem; height: 3rem;" role="status"></div>
+        </div>
+        <div id="emptyState" class="text-center py-5 d-none">
+            <i class="bi bi-camera-reels text-muted" style="font-size: 4rem;"></i>
+            <h5 class="mt-3 fw-bold text-muted">Belum ada Event</h5>
+            <p class="text-muted">Buat event live pertama dan bagikan link katalog ke pelanggan!</p>
+        </div>
+        <div class="row g-3" id="eventGrid"></div>
+    </main>
+
+    <!-- Modal Buat Event -->
+    <div class="modal fade" id="addEventModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rustic-modal border-0 shadow-lg">
+                <div class="modal-header border-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold rustic-title">Buat Event Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addEventForm">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Event</label>
+                            <input type="text" class="form-control bg-light border-0 py-3 rounded-4" id="eventTitle" placeholder="Contoh: PO Bangkok 28 Maret" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Lokasi</label>
+                            <input type="text" class="form-control bg-light border-0 py-3 rounded-4" id="eventLocation" placeholder="Contoh: Siam Paragon, Bangkok">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Durasi</label>
+                            <input type="text" class="form-control bg-light border-0 py-3 rounded-4" id="eventDuration" placeholder="Contoh: 2 Jam / Sampai Habis">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pb-4 px-4">
+                        <button type="submit" class="btn btn-primary rounded-pill w-100 py-3 fw-bold" id="btnStartEvent">
+                            <i class="bi bi-broadcast me-2"></i>Mulai Event Sekarang!
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../live-events.js"></script>
+</body>
+</html>
